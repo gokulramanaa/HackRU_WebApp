@@ -12,13 +12,13 @@
   <script>
   $(document).ready(function(){
 
-    $.get("http://7a82413e.ngrok.io/getQIds", function( data ) {
+    $.get("http://7a82413e.ngrok.io/getQIds", function( arrData ) {
       //console.log("In get");
 
       //console.log(typeof Array.from(data));
       //console.log("********* " + JSON.parse(data));
 
-      let arrData = data;
+
       let htmlText = "";
       for (let i = 0 ; i< arrData.length; i++) {
         $.ajax({
@@ -26,16 +26,16 @@
           url: "http://7a82413e.ngrok.io/questions/" + arrData[i]._id,
           async:false
         }).done(function(qData) {
-          console.log(qData);
 
 
+          htmlText = htmlText.concat('<form id="frmQuestions" onSubmit="return myFunction();">');
           htmlText = htmlText.concat('<div class="form-check form-check-inline">');
-          htmlText = htmlText.concat('<label class="form-check-label">' + qData.questionText + '</label>');
+          htmlText = htmlText.concat('<label class="form-check-label questionText" id=' +qData._id +'>' + qData.questionText + '</label>');
           let i = 0;
           if (qData.questionType === "M") {
             qData.options.forEach(function(item){
-              htmlText = htmlText.concat('<input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio"' + i + ' value="option1">');
-              htmlText = htmlText.concat('<label class="form-check-label" for="inlineRadio"' + i + '>1</label>');
+              htmlText = htmlText.concat('<input class="form-check-input" type="radio" name="inlineRadioOptions' + qData._id +' "id="inlineRadio'.concat(String(qData._id)).concat('" value="'+ item.optionText+'">'));
+              htmlText = htmlText.concat('<label class="form-check-label" for="inlineRadio'.concat(String(qData._id)).concat('">' + item.optionText + '</label>'));
 
               i++;
             })
@@ -46,7 +46,7 @@
             htmlText = htmlText.concat('<input class="form-check-input" type="text" name="inlineRadioOptions" id="inlineText"' + i + '/>');
             htmlText = htmlText.concat('</div>');
           }
-          htmlText = htmlText.concat('');
+
 
 
         }).error(function(xhr,textStatus,err) {
@@ -67,14 +67,49 @@
 
       }
       //console.log("******" + htmlText);
+      htmlText = htmlText.concat('<button type="submit" class="btn btn-info"  id="btnSubmit">Submit</button>');
+      htmlText = htmlText.concat('<button type="button" class="btn btn-info" id="btnReset">Reset</button>');
+      htmlText = htmlText.concat('</form>');
       document.getElementById("questionList").innerHTML =htmlText ;
       //$( "#questionList" ).html( htmlText );
 
-    });
+    })
+
   });
 
+
+
   </script>
-  <script src="../js/main.js"></script>
+  <script>
+  function myFunction() {
+    //console.log("My function");
+    var  qList= document.getElementsByClassName("questionText");
+    //console.log("T");
+    //console.log(qList);
+    //  qList.forEach(function(item){
+    //   // var lId = item.id;
+    //   // console.log(lId);
+    //   console.log("T");
+    // });
+    var qAndA = new Array();
+    for (var i = 0; i < qList.length; i++) {
+      //console.log(qList[i].id); //second console output
+      var obj = {};
+      var radios = document.getElementsByName( 'inlineRadioOptions' + qList[i].id );
+      obj.qId = qList[i].id;
+      for( i = 0; i < radios.length; i++ ) {
+        if( radios[i].checked ) {
+            obj.aId = radios[i].value;
+        }
+      }
+      qAndA.push(obj);
+    }
+    console.log(qAndA);
+
+    return false;
+  };
+  </script>
+
 </head>
 
 <body>
