@@ -12,7 +12,7 @@
   <script>
   $(document).ready(function(){
 
-    $.get("http://7a82413e.ngrok.io/getQIds", function( arrData ) {
+    $.get("http://dc390926.ngrok.io/getQIds", function( arrData ) {
       //console.log("In get");
 
       //console.log(typeof Array.from(data));
@@ -23,7 +23,7 @@
       for (let i = 0 ; i< arrData.length; i++) {
         $.ajax({
           type: 'GET',
-          url: "http://7a82413e.ngrok.io/questions/" + arrData[i]._id,
+          url: "http://dc390926.ngrok.io/questions/" + arrData[i]._id,
           async:false
         }).done(function(qData) {
 
@@ -34,19 +34,19 @@
           let i = 0;
           if (qData.questionType === "M") {
             qData.options.forEach(function(item){
-              htmlText = htmlText.concat('<input class="form-check-input" type="radio" name="inlineRadioOptions' + qData._id +' "id="inlineRadio'.concat(String(qData._id)).concat('" value="'+ item.optionText+'">'));
+              htmlText = htmlText.concat('<input class="form-check-input" type="radio" name="inlineRadioOptions' + qData._id + '"' + item.optionText+'">');
               htmlText = htmlText.concat('<label class="form-check-label" for="inlineRadio'.concat(String(qData._id)).concat('">' + item.optionText + '</label>'));
 
               i++;
             })
-            htmlText = htmlText.concat('</div>');
           }
           else {
 
-            htmlText = htmlText.concat('<input class="form-check-input" type="text" name="inlineRadioOptions" id="inlineText"' + i + '/>');
-            htmlText = htmlText.concat('</div>');
+            htmlText = htmlText.concat('<input class="form-check-input" type="text" id="inlineText"' + i + '/>');
+
           }
 
+          htmlText = htmlText.concat('</div>');
 
 
         }).error(function(xhr,textStatus,err) {
@@ -67,6 +67,8 @@
 
       }
       //console.log("******" + htmlText);
+      htmlText = htmlText.concat('<label class="form-check-label" id="userId">Enter your email ID</label>');
+      htmlText = htmlText.concat('<input class="form-check-input" type="text" id="emailId" required /> <br/>');
       htmlText = htmlText.concat('<button type="submit" class="btn btn-info"  id="btnSubmit">Submit</button>');
       htmlText = htmlText.concat('<button type="button" class="btn btn-info" id="btnReset">Reset</button>');
       htmlText = htmlText.concat('</form>');
@@ -82,32 +84,71 @@
   </script>
   <script>
   function myFunction() {
-    //console.log("My function");
+
     var  qList= document.getElementsByClassName("questionText");
-    //console.log("T");
-    //console.log(qList);
-    //  qList.forEach(function(item){
-    //   // var lId = item.id;
-    //   // console.log(lId);
-    //   console.log("T");
-    // });
+
     var qAndA = new Array();
     for (var i = 0; i < qList.length; i++) {
       //console.log(qList[i].id); //second console output
       var obj = {};
-      var radios = document.getElementsByName( 'inlineRadioOptions' + qList[i].id );
-      obj.qId = qList[i].id;
-      for( i = 0; i < radios.length; i++ ) {
-        if( radios[i].checked ) {
-            obj.aId = radios[i].value;
+      var rGroupNm = 'inlineRadioOptions' + qList[i].id;
+
+      var radios = document.getElementsByName(rGroupNm);
+
+      obj.qID = qList[i].id;
+      //console.log("A " +radios.length);
+
+      var radios = document.forms.frmQuestions.elements[rGroupNm];
+
+      try {
+      console.log(radios.length);
+        if (radios != undefined) {
+          for(var j = 0; j < radios.length; j++ ) {
+            if( radios[j].checked) {
+                obj.answer = radios[j].value;
+                break;
+             }
+          }
         }
       }
+      catch (err) {
+        console.log(err);
+      }
+
       qAndA.push(obj);
     }
+    var userId = document.getElementById("emailId").value;
     console.log(qAndA);
-
+    var answerList = {userId : userId, qAndA : qAndA};
+    console.log(answerList);
+    // try {
+    // console.log(JSON.parse(answerList));
+    // }
+    // catch(err) {
+    //   console.log(err.message);
+    // }
+    try {
+      $.ajax({
+          url : 'http://2b98bcc1.ngrok.io/query',
+          type: 'POST',
+          data : JSON.stringify(answerList),
+          contentType: 'application/json; charset=utf-8',
+          dataType: 'json',
+          async : true,
+          success : handleReturnData()
+      })
+    }
+    catch (error) {
+      console.log(error.message);
+    }
     return false;
   };
+
+  function handleReturnData() {
+    console.log("Callback called");
+  }
+
+
   </script>
 
 </head>
