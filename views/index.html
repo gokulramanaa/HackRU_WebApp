@@ -11,12 +11,66 @@
   <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
   <script>
   $(document).ready(function(){
-    console.log("Doc loaded");
-    $.get( "http://7a82413e.ngrok.io/getQIds", function( data ) {
-      console.log("In get");
-      $( "#questionList" ).html( data );
-      alert( "Load was performed." );
-});
+
+    $.get("http://7a82413e.ngrok.io/getQIds", function( data ) {
+      //console.log("In get");
+
+      //console.log(typeof Array.from(data));
+      //console.log("********* " + JSON.parse(data));
+
+      let arrData = data;
+      let htmlText = "";
+      for (let i = 0 ; i< arrData.length; i++) {
+        $.ajax({
+          type: 'GET',
+          url: "http://7a82413e.ngrok.io/questions/" + arrData[i]._id,
+          async:false
+        }).done(function(qData) {
+          console.log(qData);
+
+
+          htmlText = htmlText.concat('<div class="form-check form-check-inline">');
+          htmlText = htmlText.concat('<label class="form-check-label">' + qData.questionText + '</label>');
+          let i = 0;
+          if (qData.questionType === "M") {
+            qData.options.forEach(function(item){
+              htmlText = htmlText.concat('<input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio"' + i + ' value="option1">');
+              htmlText = htmlText.concat('<label class="form-check-label" for="inlineRadio"' + i + '>1</label>');
+
+              i++;
+            })
+            htmlText = htmlText.concat('</div>');
+          }
+          else {
+
+            htmlText = htmlText.concat('<input class="form-check-input" type="text" name="inlineRadioOptions" id="inlineText"' + i + '/>');
+            htmlText = htmlText.concat('</div>');
+          }
+          htmlText = htmlText.concat('');
+
+
+        }).error(function(xhr,textStatus,err) {
+          console.log("readyState: " + xhr.readyState);
+          console.log("responseText: "+ xhr.responseText);
+          console.log("status: " + xhr.status);
+          console.log("text status: " + textStatus);
+          console.log("error: " + err);
+        });
+        // $.get( "https://cors.io/?http://7a82413e.ngrok.io/questions/" + arrData[i]._id, function( qData ) {
+        //   //console.log(qData);
+        //
+        //   htmlText += "<p>" +JSON.parse(qData).questionText + "</p>";
+        //   console.log("htmlText " + htmlText);
+        //   console.log(JSON.parse(qData)['questionText']);
+        //
+        // });
+
+      }
+      //console.log("******" + htmlText);
+      document.getElementById("questionList").innerHTML =htmlText ;
+      //$( "#questionList" ).html( htmlText );
+
+    });
   });
 
   </script>
@@ -35,14 +89,8 @@
       </nav>
     </div>
     <br/>
-    <div class="jumbotron">
-      <p>
-        This is place to put content. You can put slider, short description about your website and place some links for navigation.
-      </p>
-    </div>
-  </div>
+
   <div id = "questionList">
-    ABC
   </div>
 
 

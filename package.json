@@ -5,6 +5,7 @@
     "start": "node Server.js"
   },
   "dependencies": {
+    "cors": "^2.8.4",
     "express": "latest"
   }
 }
